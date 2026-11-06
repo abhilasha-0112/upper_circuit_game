@@ -1,0 +1,2063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Harley Highway 100 - Official Racing & Jackpot Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            racing: ['Chakra Petch', 'sans-serif'],
+          },
+          animation: {
+            'throttle-shake': 'throttleShake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both',
+          },
+          keyframes: {
+            throttleShake: {
+              '10%, 90%': { transform: 'translate3d(-2px, 1px, 0) scale(0.96) rotate(-2deg)' },
+              '20%, 80%': { transform: 'translate3d(3px, -2px, 0) scale(0.95) rotate(2deg)' },
+              '30%, 50%, 70%': { transform: 'translate3d(-4px, 2px, 0) scale(0.97) rotate(-3deg)' },
+              '40%, 60%': { transform: 'translate3d(4px, -2px, 0) scale(0.96) rotate(3deg)' },
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    /* Custom scrollbars */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: #09090b; }
+    ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+    
+    .circuit-grass-bg {
+      background: radial-gradient(circle at 50% 50%, #4ade80 0%, #22c55e 45%, #16a34a 85%, #15803d 100%);
+    }
+
+    /* Dashed overlay flow animations */
+    @keyframes dashMove {
+      from { stroke-dashoffset: 40; }
+      to { stroke-dashoffset: 0; }
+    }
+    .tunnel-flow {
+      animation: dashMove 1.2s linear infinite;
+    }
+    .pothole-flow {
+      animation: dashMove 1.5s linear infinite reverse;
+    }
+
+    /* Safe-area support for mobile notched displays */
+    .safe-top {
+      padding-top: env(safe-area-inset-top, 0px);
+    }
+    .safe-bottom {
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+  </style>
+</head>
+<body class="h-[100dvh] w-full max-w-full overflow-x-hidden overflow-y-hidden bg-neutral-950 font-sans text-neutral-100 flex flex-col select-none">
+
+  <!-- ==================== 1. TOP HEADER & PORTAL NAVIGATION ==================== -->
+  <header class="safe-top flex-shrink-0 bg-neutral-950 border-b border-neutral-800 px-2 sm:px-4 z-40 shadow-xl">
+    <div class="h-11 sm:h-12 flex items-center justify-between gap-1">
+      <!-- Brand Logo & Live Status -->
+      <div class="flex items-center gap-1.5 flex-shrink-0">
+        <div class="flex items-center gap-1.5 bg-neutral-900 border border-orange-500/40 rounded-lg px-2 py-1 shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
+          <span class="font-racing font-bold text-xs sm:text-sm tracking-wider text-orange-400 uppercase">HARLEY 100</span>
+        </div>
+        <!-- Balance Pill -->
+        <div class="flex items-center gap-0.5 px-1.5 py-1 rounded-md bg-emerald-950/70 border border-emerald-500/40 text-[10px] sm:text-xs font-mono font-bold text-emerald-400">
+          <span>🪙</span>
+          <span>₹</span>
+          <span id="spectatorWalletDisplay">100</span>
+        </div>
+      </div>
+
+      <!-- Center Navigation Tabs (Scroll-safe on narrow screens) -->
+      <nav class="flex items-center gap-0.5 sm:gap-1 font-racing text-[10px] sm:text-xs font-bold overflow-x-auto no-scrollbar">
+        <button id="navTabRace" onclick="switchPortalTab('race')" class="px-2 py-1.5 rounded-md transition bg-orange-600 text-white shadow touch-manipulation whitespace-nowrap">
+          🏁 RACE
+        </button>
+        <button id="navTabCalc" onclick="switchPortalTab('calc')" class="px-2 py-1.5 rounded-md transition text-neutral-400 hover:text-white hover:bg-neutral-900 touch-manipulation whitespace-nowrap">
+          🧮 CALC
+        </button>
+        <button id="navTabRules" onclick="switchPortalTab('rules')" class="px-2 py-1.5 rounded-md transition text-neutral-400 hover:text-white hover:bg-neutral-900 touch-manipulation whitespace-nowrap">
+          📜 RULES
+        </button>
+        <button id="navTabRecords" onclick="switchPortalTab('records')" class="px-2 py-1.5 rounded-md transition text-neutral-400 hover:text-white hover:bg-neutral-900 touch-manipulation whitespace-nowrap">
+          🏆 LOGS
+        </button>
+      </nav>
+
+      <!-- Header Actions -->
+      <div class="flex items-center gap-1 flex-shrink-0">
+        <button id="btnSoundToggle" class="p-1.5 sm:p-2 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white touch-manipulation" title="Toggle Sound">
+          <svg id="soundIconOn" class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
+          <svg id="soundIconOff" class="w-3.5 h-3.5 sm:w-4 sm:h-4 hidden text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path></svg>
+        </button>
+
+        <button id="btnResetGame" class="px-2 py-1.5 rounded-lg bg-red-950/60 border border-red-700 text-[10px] sm:text-xs font-racing font-bold text-red-300 hover:bg-red-900 transition touch-manipulation">
+          RESET
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== 2. MAIN CONTENT VIEWPORTS ==================== -->
+  
+  <!-- VIEWPORT A: THE LIVE RACE ARENA (Mobile Vertical Stack | Desktop 2-Column Side-by-Side Split) -->
+  <section id="portalTabContentRace" class="flex-1 min-h-0 flex flex-col md:flex-row circuit-grass-bg overflow-hidden relative">
+    
+    <!-- MOBILE-ONLY TOP RACER STRIP (< md) -->
+    <div id="racersStrip" class="md:hidden flex-shrink-0 bg-neutral-950/90 backdrop-blur-md border-b border-neutral-800 px-1.5 py-1 grid grid-cols-4 gap-1 z-20">
+      <!-- Rendered dynamically -->
+    </div>
+
+    <!-- LEFT / MAIN SECTION: S-CIRCUIT TRACK -->
+    <main class="flex-1 min-h-0 min-w-0 relative flex flex-col items-center justify-center overflow-hidden p-1 sm:p-2 md:p-4">
+      
+      <!-- Floating Track Banner -->
+      <div id="trackBanner" class="absolute top-1.5 md:top-3 left-1/2 -translate-x-1/2 bg-neutral-950/95 border border-orange-500 text-orange-400 px-3 py-1 rounded-full text-[10px] sm:text-xs font-racing font-bold tracking-wider shadow-2xl transition-opacity duration-300 pointer-events-none z-40 opacity-0 max-w-[94%] text-center truncate">
+        Ready for Race
+      </div>
+
+      <!-- SVG Map -->
+      <div class="w-full h-full flex items-center justify-center overflow-hidden">
+        <svg id="highwayTrackSvg" viewBox="0 0 550 840" preserveAspectRatio="xMidYMid meet" class="w-full h-full object-contain touch-manipulation drop-shadow-2xl">
+          <defs>
+            <marker id="arrowCyan" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+              <path d="M 1 1 L 6 3.5 L 1 6 Z" fill="#06b6d4" />
+            </marker>
+            <marker id="arrowRed" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+              <path d="M 1 1 L 6 3.5 L 1 6 Z" fill="#ef4444" />
+            </marker>
+            <pattern id="checkeredPattern" width="8" height="8" patternUnits="userSpaceOnUse">
+              <rect width="4" height="4" fill="#ffffff" />
+              <rect x="4" width="4" height="4" fill="#000000" />
+              <rect y="4" width="4" height="4" fill="#000000" />
+              <rect x="4" y="4" fill="#ffffff" />
+            </pattern>
+          </defs>
+
+          <!-- Layers -->
+          <g id="svgRoadCurbLayer"></g>
+          <g id="svgRoadAsphaltLayer"></g>
+          <g id="svgRoadSkidMarksLayer"></g>
+          <g id="svgRoadCenterLineLayer"></g>
+          <g id="svgTunnelsLayer"></g>
+          <g id="svgPotholesLayer"></g>
+          <g id="svgSectorNodesLayer"></g>
+          <g id="svgBikesLayer"></g>
+        </svg>
+      </div>
+
+    </main>
+
+    <!-- DESKTOP-ONLY RIGHT SIDEBAR: ALL 4 PLAYERS & COCKPIT CONTROLS (md+) -->
+    <aside class="hidden md:flex md:w-80 lg:w-96 flex-shrink-0 bg-neutral-950/95 backdrop-blur-md border-l border-neutral-800 flex-col justify-between p-3.5 lg:p-4 z-30 shadow-2xl overflow-y-auto">
+      
+      <!-- Top Sidebar Section: Live Grid Roster -->
+      <div class="space-y-2.5">
+        <div class="flex items-center justify-between border-b border-neutral-800 pb-2">
+          <div class="flex items-center gap-2">
+            <span class="text-sm">🏍️</span>
+            <h2 class="font-racing font-bold text-xs lg:text-sm uppercase tracking-wider text-orange-400">Live Racing Grid</h2>
+          </div>
+          <div id="desktopBettingLockIndicator" class="px-2 py-0.5 rounded bg-neutral-900 border border-neutral-700 text-neutral-400 font-racing text-[10px] flex items-center gap-1">
+            <span>🔒</span>
+            <span>STAGING</span>
+          </div>
+        </div>
+
+        <!-- 4 Full Player Cards -->
+        <div id="desktopPlayersList" class="space-y-2">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Bottom Sidebar Section: Desktop Throttle & Turn Control Deck -->
+      <div class="pt-3 mt-3 border-t border-neutral-800 space-y-2.5">
+        
+        <!-- Active Turn & Telemetry Card -->
+        <div class="bg-neutral-900/90 border border-neutral-800 rounded-2xl p-2.5 lg:p-3 flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div id="desktopTurnRiderAvatar" class="w-9 h-9 lg:w-10 lg:h-10 rounded-full border-2 border-white flex items-center justify-center font-racing font-bold text-sm bg-red-600 shadow-md flex-shrink-0">
+              🏍️
+            </div>
+            <div class="min-w-0">
+              <div class="text-[9px] font-mono uppercase tracking-wider text-neutral-500">Active Throttle</div>
+              <div id="desktopTurnStatusPrompt" class="text-xs lg:text-sm font-racing font-bold text-white truncate">
+                Red Thunder
+              </div>
+              <div class="flex items-center gap-1.5 mt-0.5">
+                <span id="desktopStepReadoutText" class="text-[10px] lg:text-[11px] font-mono text-amber-400 font-bold truncate">
+                  READY TO PUSH
+                </span>
+                <div class="flex items-center gap-0.5 flex-shrink-0" title="Three 6s cause Engine Blowout!">
+                  <span class="w-1.5 h-1.5 rounded-full bg-neutral-700 desktop-pip"></span>
+                  <span class="w-1.5 h-1.5 rounded-full bg-neutral-700 desktop-pip"></span>
+                  <span class="w-1.5 h-1.5 rounded-full bg-neutral-700 desktop-pip"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-right font-mono flex-shrink-0 bg-black/50 px-2.5 py-1.5 rounded-xl border border-neutral-800">
+            <span id="desktopDigitalRpmText" class="text-xs lg:text-sm font-racing font-bold text-amber-400 block leading-none">---</span>
+            <span class="text-[8px] uppercase tracking-wider text-neutral-500">RPM</span>
+          </div>
+        </div>
+
+        <!-- Desktop Throttle Button & Auto-AI Toggle Row -->
+        <div class="flex items-center gap-2">
+          <button id="btnDesktopTwistThrottle" class="flex-1 py-3 px-4 rounded-2xl bg-gradient-to-r from-red-600 via-red-500 to-orange-600 hover:brightness-110 active:scale-95 text-white border border-red-300/60 shadow-lg shadow-red-600/30 font-racing font-bold text-xs lg:text-sm tracking-wider uppercase flex items-center justify-center gap-2 cursor-pointer transition select-none">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            <span>PUSH THROTTLE</span>
+          </button>
+
+          <button id="btnDesktopAutoAIToggle" class="px-3 py-3 rounded-2xl font-bold font-mono text-xs bg-orange-500/20 text-orange-400 border border-orange-500/40 hover:bg-orange-500/30 transition cursor-pointer" title="Toggle Auto-AI Rolls">
+            AI: ON
+          </button>
+        </div>
+
+        <div class="text-[10px] font-mono text-neutral-500 text-center">
+          Tip: Press <kbd class="px-1.5 py-0.5 bg-neutral-900 border border-neutral-700 rounded text-neutral-300">Spacebar</kbd> on your turn to roll
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- MOBILE-ONLY COCKPIT CONTROLS (< md, Bottom Fixed with safe-area padding) -->
+    <footer class="md:hidden safe-bottom flex-shrink-0 bg-neutral-950/95 backdrop-blur-md border-t border-neutral-800 px-2.5 sm:px-4 z-30 shadow-2xl">
+      <div class="h-14 sm:h-16 flex items-center justify-between gap-2">
+        <!-- Current Turn Info -->
+        <div class="flex items-center gap-2 min-w-0 flex-1">
+          <div id="turnRiderAvatar" class="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center font-racing font-bold text-xs bg-red-600 shadow-md flex-shrink-0">
+            🏍️
+          </div>
+          <div class="min-w-0">
+            <div id="turnStatusPrompt" class="text-xs sm:text-sm font-racing font-bold text-white tracking-wide truncate">
+              Red Thunder
+            </div>
+            <div class="text-[9px] sm:text-[10px] font-mono text-neutral-400 flex items-center gap-1">
+              <span id="stepReadoutText" class="text-amber-400 font-bold truncate">READY TO PUSH</span>
+              <div class="flex items-center gap-0.5 ml-1 flex-shrink-0" title="Three 6s cause Engine Blowout!">
+                <span class="w-1.5 h-1.5 rounded-full bg-neutral-700 pip"></span>
+                <span class="w-1.5 h-1.5 rounded-full bg-neutral-700 pip"></span>
+                <span class="w-1.5 h-1.5 rounded-full bg-neutral-700 pip"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CIRCULAR SHAKING PUSH BUTTON -->
+        <div class="flex items-center flex-shrink-0">
+          <button id="btnTwistThrottle" class="w-12 h-12 sm:w-13 sm:h-13 rounded-full bg-gradient-to-br from-red-500 via-red-600 to-red-800 hover:from-red-400 hover:to-red-700 active:scale-95 text-white border-2 border-red-300 shadow-lg shadow-red-600/40 flex flex-col items-center justify-center cursor-pointer transition select-none group relative ring-2 ring-red-950 touch-manipulation" title="Push Throttle">
+            <svg class="w-4 h-4 text-white filter drop-shadow group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            <span class="text-[8px] font-racing font-bold tracking-wider uppercase leading-none mt-0.5">PUSH</span>
+          </button>
+        </div>
+
+        <!-- RPM & Auto AI Toggle -->
+        <div class="flex items-center justify-end gap-1.5 sm:gap-2 text-right font-mono flex-1">
+          <div>
+            <span id="digitalRpmText" class="text-xs sm:text-sm font-racing font-bold text-amber-400 block leading-none">---</span>
+            <span class="text-[7px] uppercase tracking-wider text-neutral-500">RPM</span>
+          </div>
+
+          <div id="bettingLockIndicator" class="hidden sm:flex px-1.5 py-1 rounded bg-neutral-900 border border-neutral-700 text-neutral-400 font-racing text-[9px] items-center gap-1">
+            <span>🔒</span>
+            <span>LOCKED</span>
+          </div>
+
+          <button id="btnAutoAIToggle" class="px-2 py-1.5 rounded-lg font-bold font-mono text-[10px] bg-orange-500/20 text-orange-400 border border-orange-500/30 touch-manipulation">
+            AI
+          </button>
+        </div>
+
+      </div>
+    </footer>
+  </section>
+
+  <!-- VIEWPORT B: LIVE POT & PAYOUT CALCULATOR -->
+  <section id="portalTabContentCalc" class="flex-1 min-h-0 bg-neutral-900/95 overflow-y-auto p-3 sm:p-5 hidden">
+    <div class="max-w-xl mx-auto space-y-4 pb-6">
+      
+      <!-- Calculator Header -->
+      <div class="border-b border-neutral-800 pb-2">
+        <h2 class="text-base sm:text-lg font-racing font-bold text-orange-400 flex items-center gap-2">
+          <span>🧮</span>
+          <span>Harley Highway 100 Financial Simulator</span>
+        </h2>
+        <p class="text-xs text-neutral-400 font-mono mt-0.5">
+          Simulate any pot size, reserve toolkit count, and spectator stakes per Rule 6 & 7.
+        </p>
+      </div>
+
+      <!-- Interactive Inputs -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono text-xs">
+        <div class="bg-neutral-950 p-3 rounded-xl border border-neutral-800 space-y-2">
+          <label class="block text-neutral-300 font-bold">1. Drivers Entry Pool:</label>
+          <div class="text-amber-400 font-bold text-sm">4 Drivers × ₹10 = ₹40.0</div>
+          <span class="text-[10px] text-neutral-500 block">Mandatory starting stake (2 toolkits each).</span>
+        </div>
+
+        <div class="bg-neutral-950 p-3 rounded-xl border border-neutral-800 space-y-1.5">
+          <label class="block text-neutral-300 font-bold">2. Total Spectator Pool (₹):</label>
+          <input id="calcSpectatorPoolInput" type="number" value="120" min="10" max="5000" step="10" oninput="runCalculatorSimulation()" class="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-2.5 py-1.5 text-emerald-400 font-bold text-base focus:outline-none focus:border-emerald-500">
+          <span class="text-[10px] text-neutral-500 block">Sum of all variable spectator wagers.</span>
+        </div>
+
+        <div class="bg-neutral-950 p-3 rounded-xl border border-neutral-800 space-y-1.5">
+          <label class="block text-neutral-300 font-bold">3. Total Race Repairs Paid:</label>
+          <input id="calcTotalRepairsInput" type="range" value="4" min="0" max="8" oninput="runCalculatorSimulation()" class="w-full accent-orange-500 cursor-pointer h-6">
+          <div class="flex justify-between text-[11px] text-neutral-400">
+            <span id="calcTotalRepairsLabel">4 repairs (₹20.0)</span>
+            <span class="text-neutral-500">Max 8 across grid</span>
+          </div>
+        </div>
+
+        <div class="bg-neutral-950 p-3 rounded-xl border border-neutral-800 space-y-1.5">
+          <label class="block text-neutral-300 font-bold">4. Winner's Repairs Paid (R):</label>
+          <select id="calcWinnerRepairsSelect" onchange="runCalculatorSimulation()" class="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-2.5 py-1.5 text-white text-sm focus:outline-none">
+            <option value="0">0 repairs (Clean Run - 2 kits unspent)</option>
+            <option value="1">1 repair (1 kit unspent, ₹5 paid)</option>
+            <option value="2">2 repairs (0 kits left, ₹10 paid)</option>
+          </select>
+          <span class="text-[10px] text-neutral-500 block">Deducted from winner's ₹10 reserve.</span>
+        </div>
+      </div>
+
+      <!-- Real-Time Ledger Breakdown -->
+      <div class="bg-black/80 border border-orange-500/50 rounded-2xl p-4 font-mono text-xs space-y-2.5 shadow-2xl">
+        <div class="flex justify-between items-center text-sm font-racing border-b border-neutral-800 pb-2">
+          <span class="text-neutral-300">TOTAL HIGHWAY POT (T):</span>
+          <span id="calcTotalPotOut" class="text-amber-400 font-bold text-base">₹180.0</span>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 text-center py-1">
+          <div class="p-2 rounded-lg bg-neutral-900 border border-neutral-800">
+            <div class="text-[9px] uppercase text-neutral-400">Host Vault (10%)</div>
+            <div id="calcHostVaultOut" class="text-sm font-bold text-neutral-200 mt-0.5">₹18.0</div>
+          </div>
+          <div class="p-2 rounded-lg bg-neutral-900 border border-emerald-500/30">
+            <div class="text-[9px] uppercase text-emerald-400">Winner Bounty (10%)</div>
+            <div id="calcWinnerBountyOut" class="text-sm font-bold text-emerald-400 mt-0.5">₹18.0</div>
+          </div>
+          <div class="p-2 rounded-lg bg-neutral-900 border border-amber-500/30">
+            <div class="text-[9px] uppercase text-amber-400">Spectator Pool (80%)</div>
+            <div id="calcSpecPoolOut" class="text-sm font-bold text-amber-400 mt-0.5">₹144.0</div>
+          </div>
+        </div>
+
+        <!-- Winning Driver Calculation -->
+        <div class="p-3 rounded-xl bg-orange-950/30 border border-orange-500/40 text-[11px] space-y-1">
+          <div class="font-racing font-bold text-orange-400 uppercase text-xs">Winning Driver Payout Formula:</div>
+          <div class="text-neutral-300 text-[10px]">Final Cash = (0.10 × T) + (10 - 5 × R_winner)</div>
+          <div class="flex justify-between pt-1 border-t border-neutral-800">
+            <span>Winner Cash-in-Hand:</span>
+            <span id="calcWinnerFinalCashOut" class="font-bold text-emerald-400 text-xs">₹28.0</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Winner Net Profit (after ₹10 entry):</span>
+            <span id="calcWinnerNetProfitOut" class="font-bold text-amber-400 text-xs">+₹18.0</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- VIEWPORT C: OFFICIAL RULES & INTERACTIVE TRACK GUIDE -->
+  <section id="portalTabContentRules" class="flex-1 min-h-0 bg-neutral-900/95 overflow-y-auto p-3 sm:p-5 hidden">
+    <div class="max-w-xl mx-auto space-y-4 font-mono text-xs pb-6">
+      
+      <div class="border-b border-neutral-800 pb-2">
+        <h2 class="text-base sm:text-lg font-racing font-bold text-white flex items-center gap-2">
+          <span>📜</span>
+          <span>Harley Highway 100 Official Regulations</span>
+        </h2>
+        <p class="text-neutral-400 text-[11px]">Standardized Grand Prix rules for Drivers and Spectators.</p>
+      </div>
+
+      <div class="space-y-3 text-neutral-300 leading-relaxed">
+        <div class="p-3 rounded-xl bg-neutral-950 border border-neutral-800">
+          <h3 class="font-racing font-bold text-orange-400 text-sm mb-1">Rule 1: Strict Role Separation</h3>
+          <p>A participant is strictly either a <strong>Driver</strong> or a <strong>Spectator</strong>. Drivers stake ₹10 to enter their bike and are <strong>strictly exempted from betting on any rider</strong>. Only Spectators place variable bets (₹10 to ₹100) to win the 80% jackpot.</p>
+        </div>
+
+        <div class="p-3 rounded-xl bg-neutral-950 border border-neutral-800">
+          <h3 class="font-racing font-bold text-emerald-400 text-sm mb-1">Rule 2: Tachometer & Redline Bonus</h3>
+          <p>Rolling an exact 6 grants one immediate bonus roll. Rolling three 6s in a row triggers an <strong>Engine Blowout</strong>, canceling that turn's movement.</p>
+        </div>
+
+        <div class="p-3 rounded-xl bg-neutral-950 border border-neutral-800">
+          <h3 class="font-racing font-bold text-cyan-400 text-sm mb-1">Rule 3: Elevated Expressways (7 On-Ramps)</h3>
+          <p>Landing on an on-ramp immediately launches the Harley forward: <strong>4➔14 (+10)</strong>, <strong>9➔31 (+22)</strong>, <strong>21➔42 (+21)</strong>, <strong>28➔84 (+56 Mega Boost)</strong>, <strong>51➔67 (+16)</strong>, <strong>71➔91 (+20)</strong>, <strong>80➔97 (+17)</strong>.</p>
+        </div>
+
+        <div class="p-3 rounded-xl bg-neutral-950 border border-neutral-800">
+          <h3 class="font-racing font-bold text-red-400 text-sm mb-1">Rule 4: Red Pothole Portals & Emergency Repairs</h3>
+          <p>Landing on a Red Pothole starts a 10-second timer. Pay <strong>₹5 from your ₹10 reserve</strong> to hold position, or slide down the chute: <strong>17➔7</strong>, <strong>54➔34</strong>, <strong>62➔19</strong>, <strong>64➔60</strong>, <strong>87➔24 (-63 Abyss)</strong>, <strong>93➔73</strong>, <strong>95➔75</strong>, <strong>99➔78</strong>.</p>
+        </div>
+
+        <div class="p-3 rounded-xl bg-neutral-950 border border-neutral-800">
+          <h3 class="font-racing font-bold text-amber-400 text-sm mb-1">Rule 5: Highway Side-Swipe Knockout</h3>
+          <p>Landing on an occupied sector rear-ends the resident Harley, knocking it backward by <strong>5 sectors</strong>. Secondary tunnels and potholes cascade automatically!</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- VIEWPORT D: HALL OF FAME & RECORDS -->
+  <section id="portalTabContentRecords" class="flex-1 min-h-0 bg-neutral-900/95 overflow-y-auto p-3 sm:p-5 hidden">
+    <div class="max-w-xl mx-auto space-y-4 font-mono text-xs pb-6">
+      
+      <div class="border-b border-neutral-800 pb-2">
+        <h2 class="text-base sm:text-lg font-racing font-bold text-amber-400 flex items-center gap-2">
+          <span>🏆</span>
+          <span>Circuit Hall of Fame & Live Statistics</span>
+        </h2>
+        <p class="text-neutral-400 text-[11px]">Historical records and fastest checkered flag crosses.</p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 text-center">
+        <div class="p-3 bg-neutral-950 border border-neutral-800 rounded-xl">
+          <div class="text-[9px] uppercase text-neutral-500 font-bold">Fastest Finish</div>
+          <div class="text-base font-racing font-bold text-white mt-0.5">8 Turns</div>
+          <div class="text-[9px] text-emerald-400">#1 Red Thunder</div>
+        </div>
+        <div class="p-3 bg-neutral-950 border border-neutral-800 rounded-xl">
+          <div class="text-[9px] uppercase text-neutral-500 font-bold">Largest Single Pot</div>
+          <div class="text-base font-racing font-bold text-amber-400 mt-0.5">₹480.0</div>
+          <div class="text-[9px] text-neutral-400">Season 1 Grand Prix</div>
+        </div>
+      </div>
+
+      <div class="p-3 bg-neutral-950 border border-neutral-800 rounded-xl space-y-2">
+        <span class="font-racing font-bold text-neutral-300 block text-xs">Recent Race Ledger Logs:</span>
+        <div id="recordsRaceHistoryList" class="space-y-1.5">
+          <div class="p-2 rounded bg-neutral-900/70 border border-neutral-800 text-[10px] flex justify-between items-center">
+            <span>🏁 <strong>Red Thunder</strong> (0 repairs)</span>
+            <span class="text-emerald-400 font-bold">+₹14.0 Net</span>
+          </div>
+          <div class="p-2 rounded bg-neutral-900/70 border border-neutral-800 text-[10px] flex justify-between items-center">
+            <span>🏁 <strong>Gold Hog</strong> (1 repair)</span>
+            <span class="text-emerald-400 font-bold">+₹11.5 Net</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- SIMPLE PRE-RACE LOGIN & PLAYER SETUP MODAL -->
+  <div id="landingModal" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-lg flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-neutral-900 border-2 border-orange-500 rounded-3xl max-w-md w-full p-4 sm:p-5 shadow-2xl relative max-h-[94dvh] flex flex-col justify-between overflow-hidden">
+      
+      <!-- Top Header -->
+      <div class="border-b border-neutral-800 pb-2.5">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-lg">🏁</span>
+            <h2 class="text-sm sm:text-base font-racing font-bold text-white uppercase tracking-wider">Harley 100 Race Setup</h2>
+          </div>
+          <div class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 font-mono text-xs font-bold">
+            🪙 ₹<span id="preRaceWalletText">100</span>
+          </div>
+        </div>
+        <p class="text-[11px] text-neutral-400 mt-1">
+          Enter all 4 biker names below and choose your mode.
+        </p>
+
+        <!-- Clean Mode Toggle: Play as Drivers vs. Spectator Bettor -->
+        <div class="grid grid-cols-2 gap-1.5 p-1 bg-black/70 rounded-xl border border-neutral-800 mt-2.5 font-racing">
+          <button id="tabRoleRider" onclick="setPreRaceRole('rider')" class="py-1.5 px-2 rounded-lg text-xs font-bold transition bg-orange-600 text-white shadow touch-manipulation">
+            🏍️ Race Drivers
+          </button>
+          <button id="tabRoleSpectator" onclick="setPreRaceRole('spectator')" class="py-1.5 px-2 rounded-lg text-xs font-bold transition text-neutral-400 hover:text-white touch-manipulation">
+            🎟️ Spectator Bet
+          </button>
+        </div>
+
+        <div id="preRaceModalError" class="text-xs text-amber-400 font-racing font-bold hidden mt-2 bg-amber-950/60 border border-amber-500/50 rounded-lg p-2 text-center"></div>
+      </div>
+
+      <!-- Center Scrollable Form: All 4 Manual Player Names + Mode Controls -->
+      <div id="preRaceRoleBody" class="space-y-2.5 text-left my-2.5 overflow-y-auto flex-1 pr-0.5">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Bottom Start Button -->
+      <div class="pt-2.5 border-t border-neutral-800">
+        <button id="btnLockAndStartRace" onclick="lockBetsAndStartRace()" class="w-full py-3 rounded-xl bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 hover:brightness-110 active:scale-95 text-black font-racing font-bold text-sm uppercase tracking-wider transition shadow-lg shadow-orange-600/30 flex items-center justify-center gap-2 touch-manipulation">
+          <span>🏁 START HIGHWAY RACE</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- POTHOLE 10s EMERGENCY DECISION MODAL -->
+  <div id="potholeModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-neutral-900 border-2 border-red-600 rounded-2xl max-w-sm w-full p-5 text-center shadow-2xl relative">
+      <div class="inline-flex p-2.5 rounded-full bg-red-950/80 border border-red-500/50 text-red-500 mb-2 animate-bounce">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+      </div>
+
+      <h3 class="text-lg font-racing font-bold text-white uppercase">Red Pothole Portal Struck!</h3>
+      <p id="potholeModalDesc" class="text-xs text-neutral-300 mt-1">
+        Detour chute drops bike backward down the detour.
+      </p>
+
+      <!-- 10s Timer -->
+      <div class="my-3 flex flex-col items-center justify-center">
+        <div class="relative w-16 h-16 flex items-center justify-center">
+          <svg class="w-full h-full -rotate-90" viewBox="0 0 36 36">
+            <path class="text-neutral-800" stroke-width="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+            <path id="potholeTimerProgress" class="text-red-500 transition-all duration-1000 ease-linear" stroke-width="3.5" stroke-dasharray="100, 100" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+          </svg>
+          <div id="potholeTimerSeconds" class="absolute font-racing font-bold text-xl text-white">10</div>
+        </div>
+        <span class="text-[9px] uppercase font-bold text-neutral-400 mt-1">Roadside Repair Window</span>
+      </div>
+
+      <div class="space-y-2">
+        <button id="btnConfirmRepair" class="w-full py-3 px-3 rounded-xl font-racing font-bold text-xs bg-gradient-to-r from-emerald-600 to-green-500 hover:brightness-110 text-black shadow-lg shadow-emerald-600/30 transition flex items-center justify-between border border-emerald-400/40 touch-manipulation">
+          <span class="flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"></path></svg>
+            Option A: Deploy Kit & Hold Position
+          </span>
+          <span class="px-1.5 py-0.5 rounded bg-black/40 text-emerald-300 font-mono text-[10px]">-₹5</span>
+        </button>
+
+        <button id="btnDeclineRepair" class="w-full py-2.5 px-3 rounded-xl font-racing font-semibold text-xs bg-neutral-800 hover:bg-neutral-700 text-neutral-300 transition flex items-center justify-between border border-neutral-700 touch-manipulation">
+          <span>Option B: Slide Down Red Chute</span>
+          <span class="text-neutral-400 font-mono text-[10px]">₹0</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VICTORY CELEBRATION MODAL -->
+  <div id="victoryModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-lg hidden flex items-center justify-center p-4">
+    <div class="bg-neutral-900 border-2 border-amber-500 rounded-3xl max-w-md w-full p-5 text-center shadow-2xl relative">
+      <div class="inline-flex p-3 rounded-full bg-amber-500/20 border border-amber-500/50 text-amber-400 mb-2 animate-bounce">
+        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      </div>
+
+      <h2 class="text-xl font-racing font-bold text-white uppercase tracking-wider">Checkered Flag Cross!</h2>
+      <div id="winnerBannerTitle" class="text-lg font-racing font-bold text-amber-400 mt-0.5">Red Thunder Wins!</div>
+      
+      <!-- Financial Breakdown -->
+      <div class="bg-black/70 border border-neutral-800 rounded-xl p-3 my-3 text-left font-mono text-xs space-y-1.5">
+        <div class="flex justify-between pb-1 border-b border-neutral-800">
+          <span class="text-neutral-400">Total Pot (T):</span>
+          <span id="winTotalPot" class="font-bold text-amber-400">₹40.0</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-neutral-300">Winner 10% Bounty:</span>
+          <span id="winBounty" class="text-emerald-400 font-bold">+₹4.0</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-neutral-300">Unspent Reserve Refund:</span>
+          <span id="winReserveRefund" class="text-neutral-200">+₹10.0</span>
+        </div>
+        <div class="flex justify-between pt-1 text-xs bg-neutral-900/90 p-1.5 rounded border border-neutral-800 font-racing">
+          <span class="text-white">Winner Cash-in-Hand:</span>
+          <span id="winFinalCash" class="text-amber-400 font-bold">₹14.0</span>
+        </div>
+        <div class="flex justify-between text-[11px] text-neutral-400 px-1">
+          <span>Winner True Net Profit:</span>
+          <span id="winNetProfit" class="font-bold text-emerald-400">+₹4.0</span>
+        </div>
+        <div class="pt-1 border-t border-neutral-800 flex justify-between text-[11px]">
+          <span class="text-neutral-400">Your Spectator Winnings:</span>
+          <span id="winSpectatorShare" class="font-bold text-emerald-400">₹0.0</span>
+        </div>
+      </div>
+
+      <button id="btnNewRace" class="w-full py-3 rounded-xl font-racing font-bold text-xs bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 hover:brightness-110 text-black shadow-lg shadow-orange-600/30 transition uppercase touch-manipulation">
+        Stage New Highway Race
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== JAVASCRIPT GAME & PORTAL ENGINE ==================== -->
+  <script>
+    // 1. SYNTHETIC AUDIO ENGINE (Web Audio API)
+    const sfx = {
+      ctx: null,
+      enabled: true,
+      init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) this.ctx = new AudioCtx();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      },
+      playEngineChug() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(85, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(38, this.ctx.currentTime + 0.12);
+          gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.12);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.12);
+        } catch(e) {}
+      },
+      playRevSound() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(110, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(380, this.ctx.currentTime + 0.35);
+          gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.35);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.35);
+        } catch(e) {}
+      },
+      playGearShift() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(320, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(540, this.ctx.currentTime + 0.1);
+          gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.1);
+        } catch(e) {}
+      },
+      playNitroGlide() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(220, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 1.2);
+          gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 1.2);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 1.2);
+        } catch(e) {}
+      },
+      playPotholeSkid() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(450, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(110, this.ctx.currentTime + 0.6);
+          gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.6);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.6);
+        } catch(e) {}
+      },
+      playCollisionHorn() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const osc1 = this.ctx.createOscillator();
+          const osc2 = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc1.type = 'sawtooth';
+          osc2.type = 'sawtooth';
+          osc1.frequency.setValueAtTime(180, this.ctx.currentTime);
+          osc2.frequency.setValueAtTime(240, this.ctx.currentTime);
+          gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.4);
+          osc1.connect(gain);
+          osc2.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc1.start();
+          osc2.start();
+          osc1.stop(this.ctx.currentTime + 0.4);
+          osc2.stop(this.ctx.currentTime + 0.4);
+        } catch(e) {}
+      },
+      playTimerTick() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+          gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.05);
+        } catch(e) {}
+      },
+      playRepairWrench() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(500, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.15);
+          gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.15);
+        } catch(e) {}
+      },
+      playVictoryFanfare() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const notes = [261.63, 329.63, 392.00, 523.25];
+          notes.forEach((freq, i) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, this.ctx.currentTime + i * 0.15);
+            gain.gain.setValueAtTime(0.18, this.ctx.currentTime + i * 0.15);
+            gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + i * 0.15 + 0.4);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(this.ctx.currentTime + i * 0.15);
+            osc.stop(this.ctx.currentTime + i * 0.15 + 0.4);
+          });
+        } catch(e) {}
+      }
+    };
+
+    // 2. TRACK MAP COORDINATES & DEFINITIONS
+    const tunnels = [
+      { from: 4, to: 14, label: '+10' },
+      { from: 9, to: 31, label: '+22' },
+      { from: 21, to: 42, label: '+21' },
+      { from: 28, to: 84, label: '+56' },
+      { from: 51, to: 67, label: '+16' },
+      { from: 71, to: 91, label: '+20' },
+      { from: 80, to: 97, label: '+17' }
+    ];
+
+    const potholes = [
+      { from: 17, to: 7, label: '-10' },
+      { from: 54, to: 34, label: '-20' },
+      { from: 62, to: 19, label: '-43' },
+      { from: 64, to: 60, label: '-4' },
+      { from: 87, to: 24, label: '-63' },
+      { from: 93, to: 73, label: '-20' },
+      { from: 95, to: 75, label: '-20' },
+      { from: 99, to: 78, label: '-21' }
+    ];
+
+    const tunnelMap = {};
+    tunnels.forEach(t => tunnelMap[t.from] = t);
+
+    const potholeMap = {};
+    potholes.forEach(p => potholeMap[p.from] = p);
+
+    const sectorCoords = {};
+
+    function computeSectorCoords() {
+      const xStart = 45;
+      const xEnd = 505;
+      const xStep = (xEnd - xStart) / 9;
+      const yBottom = 780;
+      const yTop = 60;
+      const yStep = (yBottom - yTop) / 9;
+
+      for (let sec = 1; sec <= 100; sec++) {
+        const tier = Math.floor((sec - 1) / 10);
+        const col = (sec - 1) % 10;
+        const isLeftToRight = (tier % 2 === 0);
+
+        let x = isLeftToRight ? (xStart + col * xStep) : (xEnd - col * xStep);
+        let y = yBottom - (tier * yStep);
+        const wavyY = Math.sin(col * 0.7 + tier * 0.5) * 3;
+
+        sectorCoords[sec] = {
+          x: Math.round(x),
+          y: Math.round(y + wavyY),
+          tier: tier
+        };
+      }
+    }
+
+    // 3. GAME STATE & COMPACT BIKER SCALING CONSTANTS
+    const BIKE_BASE_SCALE = 0.88;
+    const BIKE_STEP_SCALE = 1.05;
+    const BIKE_GLIDE_SCALE = 0.92;
+
+    const state = {
+      role: 'rider', // 'rider' (Drivers Mode) or 'spectator' (Spectator Bettor Mode)
+      userRiderId: 0,
+      bettingLocked: false,
+      riders: [
+        {
+          id: 0,
+          name: 'Red Thunder',
+          defaultName: 'Red Thunder',
+          color: '#ef4444',
+          isAI: false,
+          pos: 1,
+          reserve: 10,
+          repairsPaid: 0,
+          sixesInRow: 0,
+          userBet: 0,
+          aiBets: [
+            { name: 'Apex', amount: 20 },
+            { name: 'Demon', amount: 10 }
+          ]
+        },
+        {
+          id: 1,
+          name: 'Blue Cruiser',
+          defaultName: 'Blue Cruiser',
+          color: '#3b82f6',
+          isAI: false,
+          pos: 1,
+          reserve: 10,
+          repairsPaid: 0,
+          sixesInRow: 0,
+          userBet: 0,
+          aiBets: [
+            { name: 'Drift', amount: 20 }
+          ]
+        },
+        {
+          id: 2,
+          name: 'Gold Hog',
+          defaultName: 'Gold Hog',
+          color: '#eab308',
+          isAI: true,
+          pos: 1,
+          reserve: 10,
+          repairsPaid: 0,
+          sixesInRow: 0,
+          userBet: 0,
+          aiBets: [
+            { name: 'Jack', amount: 30 }
+          ]
+        },
+        {
+          id: 3,
+          name: 'Green Beast',
+          defaultName: 'Green Beast',
+          color: '#10b981',
+          isAI: true,
+          pos: 1,
+          reserve: 10,
+          repairsPaid: 0,
+          sixesInRow: 0,
+          userBet: 0,
+          aiBets: [
+            { name: 'Nitro', amount: 15 }
+          ]
+        }
+      ],
+      currentRiderIdx: 0,
+      isRolling: false,
+      isGameOver: false,
+      autoAI: true,
+      spectatorWallet: 100,
+      totalRepairsCount: 0,
+      potholeTimerInterval: null,
+      // Tighter offsets so smaller biker tokens sit neatly around sector circles
+      tokenOffsets: [
+        { dx: -7, dy: -6 },
+        { dx: 7, dy: -6 },
+        { dx: -7, dy: 6 },
+        { dx: 7, dy: 6 }
+      ]
+    };
+
+    // 4. TAB SWITCHER
+    window.switchPortalTab = function(tabName) {
+      const tabs = ['race', 'calc', 'rules', 'records'];
+      tabs.forEach(t => {
+        const content = document.getElementById(`portalTabContent${t.charAt(0).toUpperCase() + t.slice(1)}`);
+        const btn = document.getElementById(`navTab${t.charAt(0).toUpperCase() + t.slice(1)}`);
+        if (content) {
+          if (t === tabName) {
+            content.classList.remove('hidden');
+          } else {
+            content.classList.add('hidden');
+          }
+        }
+        if (btn) {
+          if (t === tabName) {
+            btn.className = 'px-2 py-1.5 rounded-md transition bg-orange-600 text-white shadow touch-manipulation whitespace-nowrap';
+          } else {
+            btn.className = 'px-2 py-1.5 rounded-md transition text-neutral-400 hover:text-white hover:bg-neutral-900 touch-manipulation whitespace-nowrap';
+          }
+        }
+      });
+
+      if (tabName === 'calc') {
+        runCalculatorSimulation();
+      }
+    };
+
+    // 5. FINANCIAL CALCULATOR SANDBOX (TAB 2)
+    window.runCalculatorSimulation = function() {
+      const specPoolInput = parseFloat(document.getElementById('calcSpectatorPoolInput').value) || 0;
+      const totalRepairs = parseInt(document.getElementById('calcTotalRepairsInput').value) || 0;
+      const winnerRepairs = parseInt(document.getElementById('calcWinnerRepairsSelect').value) || 0;
+
+      document.getElementById('calcTotalRepairsLabel').innerText = `${totalRepairs} repairs (₹${(totalRepairs * 5).toFixed(1)})`;
+
+      const driverPool = 40.0;
+      const repairsPot = totalRepairs * 5.0;
+      const totalPot = driverPool + specPoolInput + repairsPot;
+
+      const hostVault = totalPot * 0.10;
+      const winnerBounty = totalPot * 0.10;
+      const spectatorJackpot = totalPot * 0.80;
+
+      const unspentReserve = 10.0 - (winnerRepairs * 5.0);
+      const winnerFinalCash = winnerBounty + unspentReserve;
+      const winnerNetProfit = winnerBounty - (winnerRepairs * 5.0);
+
+      document.getElementById('calcTotalPotOut').innerText = `₹${totalPot.toFixed(1)}`;
+      document.getElementById('calcHostVaultOut').innerText = `₹${hostVault.toFixed(1)}`;
+      document.getElementById('calcWinnerBountyOut').innerText = `₹${winnerBounty.toFixed(1)}`;
+      document.getElementById('calcSpecPoolOut').innerText = `₹${spectatorJackpot.toFixed(1)}`;
+      document.getElementById('calcWinnerFinalCashOut').innerText = `₹${winnerFinalCash.toFixed(1)}`;
+      document.getElementById('calcWinnerNetProfitOut').innerText = `${winnerNetProfit >= 0 ? '+₹' : '-₹'}${Math.abs(winnerNetProfit).toFixed(1)}`;
+    };
+
+    // 6. SIMPLE PRE-RACE LOGIN & PLAYER SETUP MODAL
+    window.setPreRaceRole = function(role) {
+      state.role = role;
+      if (role === 'rider') {
+        state.riders.forEach(r => r.userBet = 0);
+        // Ensure at least Player 1 is Human when switching back to Drivers mode
+        if (state.riders.every(r => r.isAI)) {
+          state.riders[0].isAI = false;
+        }
+      } else {
+        // In Spectator mode, all 4 riders are controlled by AI while spectator bets
+        state.riders.forEach(r => r.isAI = true);
+      }
+
+      const tabRider = document.getElementById('tabRoleRider');
+      const tabSpec = document.getElementById('tabRoleSpectator');
+      const errEl = document.getElementById('preRaceModalError');
+      if (errEl) errEl.classList.add('hidden');
+
+      if (role === 'rider') {
+        tabRider.className = 'py-1.5 px-2 rounded-lg text-xs font-bold transition bg-orange-600 text-white shadow touch-manipulation';
+        tabSpec.className = 'py-1.5 px-2 rounded-lg text-xs font-bold transition text-neutral-400 hover:text-white touch-manipulation';
+      } else {
+        tabSpec.className = 'py-1.5 px-2 rounded-lg text-xs font-bold transition bg-emerald-600 text-white shadow touch-manipulation';
+        tabRider.className = 'py-1.5 px-2 rounded-lg text-xs font-bold transition text-neutral-400 hover:text-white touch-manipulation';
+      }
+      renderPreRaceModal();
+    };
+
+    window.updateRiderNameInput = function(index, value) {
+      state.riders[index].name = value;
+    };
+
+    window.toggleRiderControlType = function(index) {
+      if (state.role !== 'rider') return;
+      state.riders[index].isAI = !state.riders[index].isAI;
+      const errEl = document.getElementById('preRaceModalError');
+      if (errEl) errEl.classList.add('hidden');
+      renderPreRaceModal();
+    };
+
+    function renderPreRaceModal() {
+      const container = document.getElementById('preRaceRoleBody');
+      const walletEl = document.getElementById('preRaceWalletText');
+      if (walletEl) walletEl.innerText = state.spectatorWallet;
+      if (!container) return;
+
+      const totalWagered = state.riders.reduce((sum, r) => sum + r.userBet, 0);
+
+      let html = `
+        <div class="space-y-2">
+          ${state.riders.map((r, i) => `
+            <div class="bg-neutral-950 p-2 rounded-xl border border-neutral-800 flex flex-col gap-1.5">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full flex items-center justify-center font-racing font-bold text-xs text-white flex-shrink-0 shadow" style="background-color: ${r.color}">
+                  #${i + 1}
+                </span>
+                <input
+                  type="text"
+                  maxlength="16"
+                  value="${escapeHtmlAttr(r.name)}"
+                  placeholder="${r.defaultName}"
+                  oninput="updateRiderNameInput(${i}, this.value)"
+                  class="flex-1 min-w-0 bg-neutral-900 border border-neutral-700 focus:border-orange-500 rounded-lg px-2.5 py-1.5 text-base sm:text-sm font-racing font-bold text-white placeholder-neutral-500 focus:outline-none"
+                />
+                ${state.role === 'rider' ? `
+                  <button
+                    type="button"
+                    onclick="toggleRiderControlType(${i})"
+                    class="px-2.5 py-1.5 rounded-lg font-racing font-bold text-xs border transition flex-shrink-0 touch-manipulation ${
+                      !r.isAI
+                        ? 'bg-orange-600/20 border-orange-500 text-orange-300'
+                        : 'bg-neutral-900 border-neutral-700 text-neutral-400'
+                    }"
+                  >
+                    ${!r.isAI ? '👤 HUMAN' : '🤖 AI'}
+                  </button>
+                ` : `
+                  <span class="px-2 py-1 rounded-lg bg-neutral-900 border border-neutral-800 font-mono text-xs text-emerald-400 font-bold flex-shrink-0">
+                    ${r.userBet > 0 ? '₹' + r.userBet : '₹0'}
+                  </span>
+                `}
+              </div>
+
+              ${state.role === 'spectator' ? `
+                <div class="flex items-center justify-between pl-8 pt-0.5">
+                  <span class="text-[10px] font-mono text-neutral-500">Wager on Rider #${i + 1}:</span>
+                  <div class="flex items-center gap-1">
+                    <button type="button" onclick="addPreRaceBet(${r.id}, 10)" class="px-2 py-1 rounded bg-neutral-800 hover:bg-neutral-700 text-white font-mono text-xs active:scale-95 transition touch-manipulation">
+                      +10
+                    </button>
+                    <button type="button" onclick="addPreRaceBet(${r.id}, 25)" class="px-2 py-1 rounded bg-neutral-800 hover:bg-neutral-700 text-white font-mono text-xs active:scale-95 transition touch-manipulation">
+                      +25
+                    </button>
+                    <button type="button" onclick="clearPreRaceBet(${r.id})" class="px-2 py-1 rounded bg-red-950/60 text-red-400 font-mono text-xs active:scale-95 transition touch-manipulation" title="Clear Bet">
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+          `).join('')}
+        </div>
+      `;
+
+      if (state.role === 'rider') {
+        html += `
+          <div class="px-3 py-2 rounded-xl bg-neutral-950/80 border border-neutral-800 flex items-center justify-between text-[11px] font-mono text-neutral-400">
+            <span>Grid Entry Stake: <strong class="text-orange-400">₹10 / driver</strong></span>
+            <span>2 Toolkits Included</span>
+          </div>
+        `;
+      } else {
+        html += `
+          <div class="px-3 py-2 rounded-xl bg-emerald-950/30 border border-emerald-500/40 flex items-center justify-between text-xs font-mono">
+            <span class="text-neutral-300">Total Spectator Stake:</span>
+            <span class="font-bold ${totalWagered >= 10 ? 'text-emerald-400' : 'text-amber-400'}">₹${totalWagered} / ₹100</span>
+          </div>
+        `;
+      }
+
+      container.innerHTML = html;
+    }
+
+    function escapeHtmlAttr(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    window.addPreRaceBet = function(riderId, amount) {
+      const errEl = document.getElementById('preRaceModalError');
+      if (state.role === 'rider') {
+        if (errEl) {
+          errEl.innerText = `⚠️ Drivers are strictly prohibited from betting!`;
+          errEl.classList.remove('hidden');
+        }
+        return;
+      }
+
+      const totalUserBets = state.riders.reduce((sum, r) => sum + r.userBet, 0);
+      const available = 100 - totalUserBets;
+
+      if (available < amount) {
+        if (errEl) {
+          errEl.innerText = `⚠️ Insufficient ₹! Available: ₹${available}`;
+          errEl.classList.remove('hidden');
+        }
+        return;
+      }
+      if (errEl) errEl.classList.add('hidden');
+
+      state.riders[riderId].userBet += amount;
+      sfx.playRepairWrench();
+      renderPreRaceModal();
+    };
+
+    window.clearPreRaceBet = function(riderId) {
+      const errEl = document.getElementById('preRaceModalError');
+      if (errEl) errEl.classList.add('hidden');
+      state.riders[riderId].userBet = 0;
+      renderPreRaceModal();
+    };
+
+    window.lockBetsAndStartRace = function() {
+      const totalUserBets = state.riders.reduce((sum, r) => sum + r.userBet, 0);
+      const errEl = document.getElementById('preRaceModalError');
+
+      // Sanitize empty player names back to their clean defaults
+      state.riders.forEach((r) => {
+        const trimmed = (r.name || '').trim();
+        r.name = trimmed.length > 0 ? trimmed : r.defaultName;
+      });
+
+      if (state.role === 'rider') {
+        const firstHumanIdx = state.riders.findIndex(r => !r.isAI);
+        if (firstHumanIdx === -1) {
+          if (errEl) {
+            errEl.innerText = '⚠️ Set at least 1 player to HUMAN (or switch to Spectator Bet)!';
+            errEl.classList.remove('hidden');
+          }
+          return;
+        }
+        state.userRiderId = firstHumanIdx;
+        state.riders.forEach(r => r.userBet = 0);
+        state.spectatorWallet = 90; // ₹100 - ₹10 entry stake
+        const humanNames = state.riders.filter(r => !r.isAI).map(r => r.name).join(', ');
+        showTrackBanner(`🏁 Grid Ready! Drivers: ${humanNames}`);
+      } else {
+        if (totalUserBets < 10) {
+          if (errEl) {
+            errEl.innerText = '⚠️ Place at least ₹10 in bets before starting!';
+            errEl.classList.remove('hidden');
+          }
+          return;
+        }
+        state.userRiderId = -1;
+        state.spectatorWallet = 100 - totalUserBets;
+        state.riders.forEach(r => {
+          r.isAI = true;
+        });
+        showTrackBanner(`🎟️ Bets Locked (₹${totalUserBets})! Engines roaring.`);
+      }
+
+      if (errEl) errEl.classList.add('hidden');
+      state.bettingLocked = true;
+      document.getElementById('landingModal').classList.add('hidden');
+      document.getElementById('spectatorWalletDisplay').innerText = state.spectatorWallet.toFixed(0);
+
+      ['bettingLockIndicator', 'desktopBettingLockIndicator'].forEach(id => {
+        const indicator = document.getElementById(id);
+        if (indicator) {
+          indicator.innerHTML = `<span class="text-red-400">🔒</span><span class="text-red-400 font-bold">LOCKED</span>`;
+          indicator.classList.add('border-red-500/40', 'bg-red-950/40');
+        }
+      });
+
+      renderRacersAndBackers();
+      prepareActiveTurn();
+    };
+
+    // 7. SVG S-CIRCUIT RENDERING
+    function buildCircuitPaths() {
+      let roadPathD = `M ${sectorCoords[1].x} ${sectorCoords[1].y}`;
+
+      for (let tier = 0; tier < 10; tier++) {
+        const isLeftToRight = (tier % 2 === 0);
+        const startSec = tier * 10 + 1;
+        const endSec = (tier + 1) * 10;
+
+        for (let s = startSec; s <= endSec; s++) {
+          roadPathD += ` L ${sectorCoords[s].x} ${sectorCoords[s].y}`;
+        }
+
+        if (tier < 9) {
+          const nextSec = endSec + 1;
+          const currPt = sectorCoords[endSec];
+          const nextPt = sectorCoords[nextSec];
+          if (isLeftToRight) {
+            roadPathD += ` C 546 ${currPt.y + 12}, 546 ${nextPt.y - 12}, ${nextPt.x} ${nextPt.y}`;
+          } else {
+            roadPathD += ` C 4 ${currPt.y + 12}, 4 ${nextPt.y - 12}, ${nextPt.x} ${nextPt.y}`;
+          }
+        }
+      }
+
+      document.getElementById('svgRoadCurbLayer').innerHTML = `
+        <path d="${roadPathD}" fill="none" stroke="#ef4444" stroke-width="48" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="${roadPathD}" fill="none" stroke="#ffffff" stroke-width="48" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="16,16" />
+      `;
+
+      document.getElementById('svgRoadAsphaltLayer').innerHTML = `
+        <path d="${roadPathD}" fill="none" stroke="#0f172a" stroke-width="38" stroke-linecap="round" stroke-linejoin="round" opacity="0.95" />
+      `;
+
+      document.getElementById('svgRoadSkidMarksLayer').innerHTML = `
+        <path d="M 480 770 Q 540 740 480 710" fill="none" stroke="#000000" stroke-width="4" opacity="0.35" stroke-linecap="round"/>
+        <path d="M 70 630 Q 15 590 70 550" fill="none" stroke="#000000" stroke-width="4.5" opacity="0.35" stroke-linecap="round"/>
+      `;
+
+      document.getElementById('svgRoadCenterLineLayer').innerHTML = `
+        <path d="${roadPathD}" fill="none" stroke="#facc15" stroke-width="2" stroke-dasharray="7,9" stroke-linecap="round" stroke-linejoin="round" opacity="0.85" />
+      `;
+
+      renderTunnelsLayer();
+      renderPotholesLayer();
+      renderSectorNodes();
+      renderBikesLayer();
+    }
+
+    function renderTunnelsLayer() {
+      const g = document.getElementById('svgTunnelsLayer');
+      g.innerHTML = '';
+      tunnels.forEach(tunnel => {
+        const p1 = sectorCoords[tunnel.from];
+        const p2 = sectorCoords[tunnel.to];
+        const dx = p2.x - p1.x;
+        const dy = p2.y - p1.y;
+        const cx = (p1.x + p2.x) / 2 - dy * 0.16;
+        const cy = (p1.y + p2.y) / 2 + dx * 0.16;
+        const pathD = `M ${p1.x} ${p1.y} Q ${cx} ${cy} ${p2.x} ${p2.y}`;
+
+        g.innerHTML += `
+          <path d="${pathD}" fill="none" stroke="#06b6d4" stroke-width="6" opacity="0.3" stroke-linecap="round"/>
+          <path d="${pathD}" fill="none" stroke="#06b6d4" stroke-width="3" stroke-dasharray="8,6" stroke-linecap="round" class="tunnel-flow" marker-end="url(#arrowCyan)"/>
+        `;
+      });
+    }
+
+    function renderPotholesLayer() {
+      const g = document.getElementById('svgPotholesLayer');
+      g.innerHTML = '';
+      potholes.forEach(pot => {
+        const p1 = sectorCoords[pot.from];
+        const p2 = sectorCoords[pot.to];
+        const dx = p2.x - p1.x;
+        const dy = p2.y - p1.y;
+        const cx = (p1.x + p2.x) / 2 + dy * 0.22;
+        const cy = (p1.y + p2.y) / 2 - dx * 0.14;
+        const pathD = `M ${p1.x} ${p1.y} Q ${cx} ${cy} ${p2.x} ${p2.y}`;
+
+        g.innerHTML += `
+          <path d="${pathD}" fill="none" stroke="#ef4444" stroke-width="6" opacity="0.35" stroke-linecap="round"/>
+          <path d="${pathD}" fill="none" stroke="#ef4444" stroke-width="3" stroke-dasharray="8,6" stroke-linecap="round" class="pothole-flow" marker-end="url(#arrowRed)"/>
+        `;
+      });
+    }
+
+    function renderSectorNodes() {
+      const g = document.getElementById('svgSectorNodesLayer');
+      g.innerHTML = '';
+
+      for (let sec = 1; sec <= 100; sec++) {
+        const pt = sectorCoords[sec];
+        const isTunnel = !!tunnelMap[sec];
+        const isPothole = !!potholeMap[sec];
+        const isFinish = (sec === 100);
+
+        if (isFinish) {
+          g.innerHTML += `
+            <g class="cursor-pointer" transform="translate(${pt.x}, ${pt.y})">
+              <circle cx="0" cy="0" r="23" fill="#eab308" stroke="#ffffff" stroke-width="3.5" filter="drop-shadow(0 2px 6px rgba(0,0,0,0.8))"/>
+              <circle cx="0" cy="0" r="19" fill="url(#checkeredPattern)" opacity="0.8"/>
+              <rect x="-20" y="-10" width="40" height="20" rx="5" fill="#000000" opacity="0.9"/>
+              <text x="0" y="1" text-anchor="middle" dominant-baseline="central" fill="#facc15" font-family="'Chakra Petch', sans-serif" font-weight="900" font-size="19">100</text>
+            </g>
+          `;
+        } else if (isPothole) {
+          const pot = potholeMap[sec];
+          g.innerHTML += `
+            <g class="cursor-pointer" transform="translate(${pt.x}, ${pt.y})">
+              <circle cx="0" cy="0" r="19" fill="#450a0a" stroke="#ef4444" stroke-width="3" filter="drop-shadow(0 2px 5px rgba(0,0,0,0.85))"/>
+              <circle cx="0" cy="0" r="14" fill="#18181b" stroke="#7f1d1d" stroke-width="1.2"/>
+              <text x="0" y="0.5" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-family="'Chakra Petch', sans-serif" font-weight="800" font-size="17">${sec}</text>
+              <rect x="-13" y="13" width="26" height="11" rx="2.5" fill="#ef4444" stroke="#ffffff" stroke-width="0.8"/>
+              <text x="0" y="18.5" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-family="'Chakra Petch', sans-serif" font-weight="900" font-size="9">${pot.label}</text>
+            </g>
+          `;
+        } else if (isTunnel) {
+          const tun = tunnelMap[sec];
+          g.innerHTML += `
+            <g class="cursor-pointer" transform="translate(${pt.x}, ${pt.y})">
+              <circle cx="0" cy="0" r="19" fill="#083344" stroke="#06b6d4" stroke-width="3" filter="drop-shadow(0 2px 5px rgba(0,0,0,0.85))"/>
+              <circle cx="0" cy="0" r="14" fill="#18181b" stroke="#164e63" stroke-width="1.2"/>
+              <text x="0" y="0.5" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-family="'Chakra Petch', sans-serif" font-weight="800" font-size="17">${sec}</text>
+              <rect x="-13" y="13" width="26" height="11" rx="2.5" fill="#06b6d4" stroke="#ffffff" stroke-width="0.8"/>
+              <text x="0" y="18.5" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-family="'Chakra Petch', sans-serif" font-weight="900" font-size="9">${tun.label}</text>
+            </g>
+          `;
+        } else {
+          g.innerHTML += `
+            <g class="cursor-pointer" transform="translate(${pt.x}, ${pt.y})">
+              <circle cx="0" cy="0" r="16" fill="#0f172a" stroke="#cbd5e1" stroke-width="2.2" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.75))"/>
+              <text x="0" y="1" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-family="'Chakra Petch', sans-serif" font-weight="700" font-size="16.5">${sec}</text>
+            </g>
+          `;
+        }
+      }
+    }
+
+    function renderBikesLayer() {
+      const g = document.getElementById('svgBikesLayer');
+      g.innerHTML = '';
+      state.riders.forEach((rider, index) => {
+        const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        group.setAttribute('id', `bike-token-${rider.id}`);
+        group.setAttribute('class', 'transition-transform duration-200');
+
+        group.innerHTML = `
+          <ellipse cx="0" cy="8" rx="14" ry="4.5" fill="rgba(0,0,0,0.65)" />
+          <circle cx="-10" cy="4" r="5.5" fill="#0f172a" stroke="#ffffff" stroke-width="1.8"/>
+          <circle cx="10" cy="4" r="5.5" fill="#0f172a" stroke="#ffffff" stroke-width="1.8"/>
+          <circle cx="-10" cy="4" r="2" fill="#e2e8f0"/>
+          <circle cx="10" cy="4" r="2" fill="#e2e8f0"/>
+          <path d="M -5 6 L 8 6" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"/>
+          <rect x="-6" y="-1.5" width="8" height="6" rx="1" fill="#334155" stroke="#94a3b8" stroke-width="0.8"/>
+          <path d="M -7 -2 Q -3 -8 5 -3 L 3 3 L -5 3 Z" fill="${rider.color}" stroke="#ffffff" stroke-width="1.2"/>
+          <path d="M 4 -2 L 8 -8 L 10 -7" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <circle cx="-1" cy="-8.5" r="4" fill="#0f172a" stroke="${rider.color}" stroke-width="1.5"/>
+          <path d="M 1 -8.5 L 3.5 -8.5" stroke="#38bdf8" stroke-width="1.2" stroke-linecap="round"/>
+          <circle cx="-1" cy="-17" r="6" fill="${rider.color}" stroke="#ffffff" stroke-width="1.5" />
+          <text x="-1" y="-14.2" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-family="'Chakra Petch', sans-serif" font-weight="900" font-size="8">#${index + 1}</text>
+        `;
+        g.appendChild(group);
+      });
+      state.riders.forEach(r => updateBikePosition(r));
+    }
+
+    function updateBikePosition(rider, customX = null, customY = null, scale = BIKE_BASE_SCALE, rot = 0) {
+      const el = document.getElementById(`bike-token-${rider.id}`);
+      if (!el) return;
+
+      let x, y;
+      if (customX !== null && customY !== null) {
+        x = customX;
+        y = customY;
+      } else {
+        const coord = sectorCoords[rider.pos] || { x: 45, y: 780 };
+        const offset = state.tokenOffsets[rider.id];
+        x = coord.x + offset.dx;
+        y = coord.y + offset.dy;
+      }
+
+      el.setAttribute('transform', `translate(${x}, ${y}) scale(${scale}) rotate(${rot})`);
+    }
+
+    // 8. RACER STRIP & DESKTOP PLAYER ROSTER SYNC
+    function syncThrottleControlsState(isDisabled, statusText) {
+      const mobileBtn = document.getElementById('btnTwistThrottle');
+      const desktopBtn = document.getElementById('btnDesktopTwistThrottle');
+      [mobileBtn, desktopBtn].forEach(btn => {
+        if (!btn) return;
+        btn.disabled = isDisabled;
+        if (isDisabled) {
+          btn.classList.add('opacity-50', 'cursor-not-allowed');
+        } else {
+          btn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+      });
+
+      if (statusText !== undefined) {
+        const mobReadout = document.getElementById('stepReadoutText');
+        const deskReadout = document.getElementById('desktopStepReadoutText');
+        if (mobReadout) mobReadout.innerText = statusText;
+        if (deskReadout) deskReadout.innerText = statusText;
+      }
+    }
+
+    function syncRpmReadouts(rpmText) {
+      const mobRpm = document.getElementById('digitalRpmText');
+      const deskRpm = document.getElementById('desktopDigitalRpmText');
+      if (mobRpm) mobRpm.innerText = rpmText;
+      if (deskRpm) deskRpm.innerText = rpmText;
+    }
+
+    function renderRacersAndBackers() {
+      const stripContainer = document.getElementById('racersStrip');
+      const desktopListContainer = document.getElementById('desktopPlayersList');
+
+      let stripHtml = '';
+      let desktopHtml = '';
+
+      state.riders.forEach((rider, idx) => {
+        const isActive = idx === state.currentRiderIdx;
+        const kitsLeft = Math.floor(rider.reserve / 5);
+        let totalBackerRC = rider.userBet;
+        rider.aiBets.forEach(b => totalBackerRC += b.amount);
+
+        // Mobile Compact Top Card
+        stripHtml += `
+          <div class="px-1.5 py-1 rounded-lg border text-left transition-all relative flex flex-col justify-between min-w-0 ${
+            isActive 
+              ? 'bg-neutral-900 border-orange-500 shadow-md ring-1 ring-orange-500/70' 
+              : 'bg-neutral-900/60 border-neutral-800'
+          }">
+            <div class="flex items-center justify-between w-full leading-none gap-1">
+              <div class="flex items-center gap-1 min-w-0">
+                <span class="w-2 h-2 rounded-full flex-shrink-0" style="background-color: ${rider.color}"></span>
+                <span class="font-racing font-bold text-[10px] sm:text-xs text-white truncate">${escapeHtmlAttr(rider.name)}</span>
+              </div>
+              <span class="font-racing font-bold text-[10px] sm:text-xs text-amber-400 flex-shrink-0">S${rider.pos}</span>
+            </div>
+
+            <div class="flex items-center justify-between w-full text-[8px] sm:text-[9px] font-mono text-neutral-400 leading-none mt-1">
+              <span>🧰${kitsLeft}</span>
+              <span class="${rider.userBet > 0 ? 'text-emerald-400 font-bold' : 'text-neutral-400'}">₹${totalBackerRC}</span>
+            </div>
+          </div>
+        `;
+
+        // Desktop Full Sidebar Player Card
+        desktopHtml += `
+          <div class="p-3 rounded-2xl border transition-all ${
+            isActive
+              ? 'bg-neutral-900 border-orange-500 shadow-lg shadow-orange-500/10 ring-1 ring-orange-500/60'
+              : 'bg-neutral-900/50 border-neutral-800/90'
+          }">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <span class="w-7 h-7 rounded-full flex items-center justify-center font-racing font-bold text-xs text-white shadow flex-shrink-0" style="background-color: ${rider.color}">
+                  #${idx + 1}
+                </span>
+                <div class="min-w-0">
+                  <div class="font-racing font-bold text-sm text-white truncate flex items-center gap-1.5">
+                    <span>${escapeHtmlAttr(rider.name)}</span>
+                  </div>
+                  <div class="text-[10px] font-mono text-neutral-400 flex items-center gap-1.5">
+                    <span class="${!rider.isAI ? 'text-orange-400 font-bold' : 'text-neutral-500'}">
+                      ${!rider.isAI ? '👤 HUMAN' : '🤖 AI'}
+                    </span>
+                    <span>•</span>
+                    <span>6s Streak:</span>
+                    <span class="inline-flex items-center gap-0.5">
+                      ${[0, 1, 2].map(pipIdx => `<span class="w-1.5 h-1.5 rounded-full ${pipIdx < rider.sixesInRow ? 'bg-orange-500' : 'bg-neutral-700'}"></span>`).join('')}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="text-right flex-shrink-0">
+                <span class="font-racing font-bold text-sm text-amber-400 block leading-none">Sector ${rider.pos}</span>
+                <span class="text-[9px] font-mono text-neutral-500">of 100</span>
+              </div>
+            </div>
+
+            <div class="mt-2.5 pt-2 border-t border-neutral-800/80 flex items-center justify-between text-[11px] font-mono">
+              <span class="text-neutral-300 flex items-center gap-1">
+                <span>🧰 Toolkits:</span>
+                <strong class="text-white">${kitsLeft}</strong>
+                <span class="text-neutral-500">(₹${rider.reserve})</span>
+              </span>
+              <span class="${rider.userBet > 0 ? 'text-emerald-400 font-bold' : 'text-neutral-400'}">
+                Pool: ₹${totalBackerRC}${rider.userBet > 0 ? ` (You: ₹${rider.userBet})` : ''}
+              </span>
+            </div>
+          </div>
+        `;
+      });
+
+      if (stripContainer) stripContainer.innerHTML = stripHtml;
+      if (desktopListContainer) desktopListContainer.innerHTML = desktopHtml;
+
+      const active = state.riders[state.currentRiderIdx];
+      const tag = active.isAI ? '(AI)' : '(You)';
+      const promptHtml = `<span style="color:${active.color}">${escapeHtmlAttr(active.name)}</span> <span class="text-neutral-400 text-[10px] sm:text-xs">${tag}</span>`;
+
+      const prompt = document.getElementById('turnStatusPrompt');
+      const desktopPrompt = document.getElementById('desktopTurnStatusPrompt');
+      if (prompt) prompt.innerHTML = promptHtml;
+      if (desktopPrompt) desktopPrompt.innerHTML = promptHtml;
+
+      const avatar = document.getElementById('turnRiderAvatar');
+      const desktopAvatar = document.getElementById('desktopTurnRiderAvatar');
+      if (avatar) avatar.style.backgroundColor = active.color;
+      if (desktopAvatar) desktopAvatar.style.backgroundColor = active.color;
+
+      const pips = document.querySelectorAll('.pip');
+      pips.forEach((pip, i) => {
+        if (i < active.sixesInRow) {
+          pip.className = 'w-1.5 h-1.5 rounded-full bg-orange-500 shadow-sm shadow-orange-500 pip';
+        } else {
+          pip.className = 'w-1.5 h-1.5 rounded-full bg-neutral-700 pip';
+        }
+      });
+
+      const desktopPips = document.querySelectorAll('.desktop-pip');
+      desktopPips.forEach((pip, i) => {
+        if (i < active.sixesInRow) {
+          pip.className = 'w-1.5 h-1.5 rounded-full bg-orange-500 shadow-sm shadow-orange-500 desktop-pip';
+        } else {
+          pip.className = 'w-1.5 h-1.5 rounded-full bg-neutral-700 desktop-pip';
+        }
+      });
+    }
+
+    // 9. ANIMATIONS & REACTION ENGINE
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function showTrackBanner(text, isDanger = false) {
+      const banner = document.getElementById('trackBanner');
+      if (!banner) return;
+      banner.innerText = text;
+      banner.className = `absolute top-1.5 md:top-3 left-1/2 -translate-x-1/2 border px-3 py-1 rounded-full text-[10px] sm:text-xs font-racing font-bold tracking-wider shadow-2xl transition-opacity duration-300 pointer-events-none z-40 opacity-100 max-w-[94%] text-center truncate ${
+        isDanger ? 'bg-red-950/95 border-red-500 text-red-300' : 'bg-neutral-950/95 border-orange-500 text-orange-400'
+      }`;
+      clearTimeout(banner._hideTimer);
+      banner._hideTimer = setTimeout(() => {
+        banner.classList.remove('opacity-100');
+        banner.classList.add('opacity-0');
+      }, 2200);
+    }
+
+    async function moveRiderStepByStep(rider, destPos) {
+      const dir = destPos > rider.pos ? 1 : -1;
+      while (rider.pos !== destPos) {
+        rider.pos += dir;
+        sfx.playEngineChug();
+        updateBikePosition(rider, null, null, BIKE_STEP_SCALE);
+        renderRacersAndBackers();
+        setTimeout(() => updateBikePosition(rider, null, null, BIKE_BASE_SCALE), 180);
+        await sleep(360);
+      }
+    }
+
+    function glideAlongTunnel(rider, tunnel) {
+      return new Promise((resolve) => {
+        sfx.playNitroGlide();
+        showTrackBanner(`🚀 ${rider.name.toUpperCase()} ENTERED TUNNEL (+${tunnel.to - tunnel.from})!`);
+
+        const p1 = sectorCoords[tunnel.from];
+        const p2 = sectorCoords[tunnel.to];
+        const dx = p2.x - p1.x;
+        const dy = p2.y - p1.y;
+        const cx = (p1.x + p2.x) / 2 - dy * 0.16;
+        const cy = (p1.y + p2.y) / 2 + dx * 0.16;
+
+        const startTime = performance.now();
+        const duration = 1800;
+
+        const animateGlide = (currentTime) => {
+          const elapsed = currentTime - startTime;
+          const t = Math.min(1, elapsed / duration);
+          const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+
+          const curX = (1 - ease) * (1 - ease) * p1.x + 2 * (1 - ease) * ease * cx + ease * ease * p2.x;
+          const curY = (1 - ease) * (1 - ease) * p1.y + 2 * (1 - ease) * ease * cy + ease * ease * p2.y;
+          const bounceScale = BIKE_GLIDE_SCALE + Math.sin(t * Math.PI) * 0.25;
+
+          updateBikePosition(rider, curX, curY, bounceScale);
+
+          if (t < 1) {
+            requestAnimationFrame(animateGlide);
+          } else {
+            rider.pos = tunnel.to;
+            updateBikePosition(rider);
+            renderRacersAndBackers();
+            resolve();
+          }
+        };
+
+        requestAnimationFrame(animateGlide);
+      });
+    }
+
+    function slideAlongPotholeChute(rider, pot) {
+      return new Promise((resolve) => {
+        sfx.playPotholeSkid();
+        showTrackBanner(`🕳️ ${rider.name.toUpperCase()} SLIDES DOWN RED CHUTE (${pot.label})!`, true);
+
+        const p1 = sectorCoords[pot.from];
+        const p2 = sectorCoords[pot.to];
+        const dx = p2.x - p1.x;
+        const dy = p2.y - p1.y;
+        const cx = (p1.x + p2.x) / 2 + dy * 0.22;
+        const cy = (p1.y + p2.y) / 2 - dx * 0.14;
+
+        const startTime = performance.now();
+        const duration = 2000;
+
+        const animateSlide = (currentTime) => {
+          const elapsed = currentTime - startTime;
+          const t = Math.min(1, elapsed / duration);
+          const ease = t * (2 - t);
+
+          const curX = (1 - ease) * (1 - ease) * p1.x + 2 * (1 - ease) * ease * cx + ease * ease * p2.x;
+          const curY = (1 - ease) * (1 - ease) * p1.y + 2 * (1 - ease) * ease * cy + ease * ease * p2.y;
+          const spinWobble = Math.sin(t * Math.PI * 6) * 22;
+
+          updateBikePosition(rider, curX, curY, BIKE_BASE_SCALE, spinWobble);
+
+          if (t < 1) {
+            requestAnimationFrame(animateSlide);
+          } else {
+            rider.pos = pot.to;
+            updateBikePosition(rider);
+            renderRacersAndBackers();
+            resolve();
+          }
+        };
+
+        requestAnimationFrame(animateSlide);
+      });
+    }
+
+    async function resolveSectorConsequences(rider, visitedPotholes = new Set()) {
+      if (state.isGameOver) return;
+
+      if (rider.pos === 100) {
+        concludeVictory(rider);
+        return;
+      }
+
+      const tunnel = tunnelMap[rider.pos];
+      if (tunnel) {
+        await glideAlongTunnel(rider, tunnel);
+        await resolveSectorConsequences(rider, visitedPotholes);
+        return;
+      }
+
+      const pot = potholeMap[rider.pos];
+      if (pot && !visitedPotholes.has(pot.from)) {
+        visitedPotholes.add(pot.from);
+        const held = await handlePotholeEncounter(rider, pot);
+        if (!held) {
+          await resolveSectorConsequences(rider, visitedPotholes);
+          return;
+        }
+      }
+
+      const victim = state.riders.find(r => r.id !== rider.id && r.pos === rider.pos && r.pos > 1);
+      if (victim) {
+        showTrackBanner(`💥 SIDE-SWIPE! ${rider.name} rammed ${victim.name} (-5 Sectors)!`, true);
+        if (sfx.playCollisionHorn) sfx.playCollisionHorn();
+        await sleep(350);
+
+        const victimNewPos = Math.max(1, victim.pos - 5);
+        await moveRiderStepByStep(victim, victimNewPos);
+        await resolveSectorConsequences(victim, new Set());
+      }
+    }
+
+    function handlePotholeEncounter(rider, pot) {
+      return new Promise((resolve) => {
+        let isResolved = false;
+
+        const cleanup = () => {
+          if (state.potholeTimerInterval) {
+            clearInterval(state.potholeTimerInterval);
+            state.potholeTimerInterval = null;
+          }
+          const modal = document.getElementById('potholeModal');
+          if (modal) modal.classList.add('hidden');
+        };
+
+        const doPay = () => {
+          if (isResolved) return;
+          isResolved = true;
+          cleanup();
+          rider.reserve -= 5;
+          rider.repairsPaid++;
+          state.totalRepairsCount++;
+          renderRacersAndBackers();
+          if (sfx.playRepairWrench) sfx.playRepairWrench();
+          showTrackBanner(`🛠️ ${rider.name} Paid ₹5 Repair! Position Held.`);
+          resolve(true);
+        };
+
+        const doDecline = async () => {
+          if (isResolved) return;
+          isResolved = true;
+          cleanup();
+          await slideAlongPotholeChute(rider, pot);
+          resolve(false);
+        };
+
+        if (rider.isAI) {
+          setTimeout(async () => {
+            const dropDist = pot.from - pot.to;
+            const canAfford = rider.reserve >= 5;
+            const shouldPay = canAfford && (dropDist >= 15 || rider.pos >= 50);
+
+            if (shouldPay) {
+              doPay();
+            } else {
+              await doDecline();
+            }
+          }, 700);
+          return;
+        }
+
+        const modal = document.getElementById('potholeModal');
+        const desc = document.getElementById('potholeModalDesc');
+        const timerSeconds = document.getElementById('potholeTimerSeconds');
+        const timerRing = document.getElementById('potholeTimerProgress');
+        const btnPay = document.getElementById('btnConfirmRepair');
+        const btnDecline = document.getElementById('btnDeclineRepair');
+
+        desc.innerHTML = `<strong>${escapeHtmlAttr(rider.name)}</strong> struck a <strong>Red Pothole Portal</strong> at Sector ${pot.from}. Detour chute drops you back to <span class="text-red-400 font-bold">Sector ${pot.to} (${pot.label} Sectors)</span>!`;
+
+        if (rider.reserve < 5) {
+          btnPay.disabled = true;
+          btnPay.classList.add('opacity-40', 'cursor-not-allowed');
+          btnPay.innerHTML = `<span>Saddlebag Empty (₹0)</span><span class="text-neutral-500 font-mono text-[10px]">BROKE</span>`;
+        } else {
+          btnPay.disabled = false;
+          btnPay.classList.remove('opacity-40', 'cursor-not-allowed');
+          btnPay.innerHTML = `
+            <span class="flex items-center gap-1.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"></path></svg>
+              Option A: Deploy Kit & Hold Position
+            </span>
+            <span class="px-1.5 py-0.5 rounded bg-black/40 text-emerald-300 font-mono text-[10px]">-₹5</span>
+          `;
+        }
+
+        modal.classList.remove('hidden');
+
+        let timeLeft = 10;
+        timerSeconds.innerText = timeLeft;
+        timerRing.setAttribute('stroke-dasharray', '100, 100');
+
+        btnPay.onclick = () => {
+          if (rider.reserve >= 5) doPay();
+        };
+
+        btnDecline.onclick = () => {
+          doDecline();
+        };
+
+        state.potholeTimerInterval = setInterval(() => {
+          timeLeft--;
+          if (timeLeft >= 0) {
+            timerSeconds.innerText = timeLeft;
+            const pct = (timeLeft / 10) * 100;
+            timerRing.setAttribute('stroke-dasharray', `${pct}, 100`);
+            if (sfx.playTimerTick) sfx.playTimerTick();
+          }
+          if (timeLeft <= 0) {
+            doDecline();
+          }
+        }, 1000);
+      });
+    }
+
+    // 10. THROTTLE PUSH & VICTORY RESOLUTION
+    async function executeThrottleRoll() {
+      if (state.isRolling || state.isGameOver) return;
+      state.isRolling = true;
+
+      const activeRider = state.riders[state.currentRiderIdx];
+      const btn = document.getElementById('btnTwistThrottle');
+
+      if (btn) {
+        btn.classList.add('animate-throttle-shake');
+        setTimeout(() => btn.classList.remove('animate-throttle-shake'), 450);
+      }
+
+      syncThrottleControlsState(true);
+
+      if (sfx.playRevSound) sfx.playRevSound();
+
+      let rollStep = 1;
+      const spinInterval = setInterval(() => {
+        rollStep = Math.floor(Math.random() * 6) + 1;
+        syncRpmReadouts(`${rollStep * 100} RPM`);
+        syncThrottleControlsState(true, `+${rollStep} SECTORS`);
+      }, 70);
+
+      await sleep(750);
+      clearInterval(spinInterval);
+
+      rollStep = Math.floor(Math.random() * 6) + 1;
+      syncRpmReadouts(`${rollStep * 100} RPM`);
+      syncThrottleControlsState(true, `+${rollStep} SECTORS`);
+      if (sfx.playGearShift) sfx.playGearShift();
+
+      let grantBonusRoll = false;
+      if (rollStep === 6) {
+        activeRider.sixesInRow++;
+        renderRacersAndBackers();
+
+        if (activeRider.sixesInRow === 3) {
+          if (sfx.playCollisionHorn) sfx.playCollisionHorn();
+          showTrackBanner(`💥 ENGINE BLOWOUT! 3 Sixes in a row! Turn voided for ${activeRider.name}!`, true);
+          activeRider.sixesInRow = 0;
+          renderRacersAndBackers();
+          await sleep(1500);
+          advanceToNextTurn();
+          state.isRolling = false;
+          return;
+        } else {
+          grantBonusRoll = true;
+          showTrackBanner(`🔥 600 RPM REDLINE! Bonus Roll for ${activeRider.name}!`);
+        }
+      } else {
+        activeRider.sixesInRow = 0;
+        renderRacersAndBackers();
+      }
+
+      const targetPos = activeRider.pos + rollStep;
+      if (targetPos > 100) {
+        showTrackBanner(`⚠️ SPEED WOBBLE! Sector 100 requires exact roll! (+${rollStep} overshoots)`, true);
+        await sleep(1000);
+      } else {
+        await moveRiderStepByStep(activeRider, targetPos);
+        await resolveSectorConsequences(activeRider);
+      }
+
+      if (state.isGameOver) {
+        state.isRolling = false;
+        return;
+      }
+
+      state.isRolling = false;
+
+      if (grantBonusRoll) {
+        showTrackBanner(`⚡ EXTRA TURN: ${activeRider.name} pushes again!`);
+        await sleep(600);
+        prepareActiveTurn();
+      } else {
+        advanceToNextTurn();
+      }
+    }
+
+    function advanceToNextTurn() {
+      state.currentRiderIdx = (state.currentRiderIdx + 1) % 4;
+      renderRacersAndBackers();
+      prepareActiveTurn();
+    }
+
+    function prepareActiveTurn() {
+      if (state.isGameOver) return;
+      const active = state.riders[state.currentRiderIdx];
+
+      if (active.isAI) {
+        syncThrottleControlsState(true, `${active.name} pushing...`);
+        if (state.autoAI) {
+          setTimeout(() => {
+            if (!state.isRolling && !state.isGameOver && state.riders[state.currentRiderIdx].isAI) {
+              executeThrottleRoll();
+            }
+          }, 900);
+        }
+      } else {
+        syncThrottleControlsState(false, 'READY TO PUSH');
+        showTrackBanner(`👉 ${active.name.toUpperCase()}'S TURN! Push throttle.`);
+      }
+    }
+
+    function concludeVictory(winner) {
+      state.isGameOver = true;
+      sfx.playVictoryFanfare();
+
+      const driverPool = 40.0;
+      let spectatorPool = 0;
+      state.riders.forEach(r => {
+        spectatorPool += r.userBet;
+        r.aiBets.forEach(b => spectatorPool += b.amount);
+      });
+      const repairsPot = state.totalRepairsCount * 5.0;
+      const totalPot = driverPool + spectatorPool + repairsPot;
+
+      const repairsPaidWinner = winner.repairsPaid;
+      const unspentReserve = 10.0 - (repairsPaidWinner * 5.0);
+      const bounty = totalPot * 0.10;
+      const finalCashInHand = bounty + unspentReserve;
+      const netProfit = bounty - (repairsPaidWinner * 5.0);
+
+      let totalWinnerBets = winner.userBet;
+      winner.aiBets.forEach(b => totalWinnerBets += b.amount);
+
+      let userWinnings = 0;
+      if (totalWinnerBets > 0 && winner.userBet > 0) {
+        userWinnings = (winner.userBet / totalWinnerBets) * (totalPot * 0.80);
+      }
+
+      if (state.role === 'rider') {
+        if (!winner.isAI) {
+          state.spectatorWallet += finalCashInHand;
+        } else {
+          const userRider = state.riders[state.userRiderId];
+          const unspentUserReserve = 10.0 - (userRider.repairsPaid * 5.0);
+          state.spectatorWallet += unspentUserReserve;
+        }
+      } else {
+        state.spectatorWallet += userWinnings;
+      }
+
+      document.getElementById('winnerBannerTitle').innerText = `${winner.name} Wins!`;
+      document.getElementById('winTotalPot').innerText = `₹${totalPot.toFixed(1)}`;
+      document.getElementById('winBounty').innerText = `+₹${bounty.toFixed(1)}`;
+      document.getElementById('winReserveRefund').innerText = `+₹${unspentReserve.toFixed(1)}`;
+      document.getElementById('winFinalCash').innerText = `₹${finalCashInHand.toFixed(1)}`;
+      document.getElementById('winNetProfit').innerText = `${netProfit >= 0 ? '+₹' : '-₹'}${Math.abs(netProfit).toFixed(1)}`;
+      document.getElementById('winSpectatorShare').innerText = (state.role === 'rider') 
+        ? 'Exempt (Driver Role)' 
+        : `+₹${userWinnings.toFixed(1)}`;
+
+      document.getElementById('victoryModal').classList.remove('hidden');
+      document.getElementById('spectatorWalletDisplay').innerText = state.spectatorWallet.toFixed(0);
+
+      // Add to Records List with custom winner name
+      const historyList = document.getElementById('recordsRaceHistoryList');
+      if (historyList) {
+        historyList.innerHTML = `
+          <div class="p-2 rounded bg-neutral-900/70 border border-neutral-800 text-[10px] flex justify-between items-center">
+            <span>🏁 <strong>${escapeHtmlAttr(winner.name)}</strong> (${repairsPaidWinner} repairs)</span>
+            <span class="text-emerald-400 font-bold">${netProfit >= 0 ? '+₹' : '-₹'}${Math.abs(netProfit).toFixed(1)} Net</span>
+          </div>
+        ` + historyList.innerHTML;
+      }
+    }
+
+    function resetRace() {
+      state.riders.forEach(r => {
+        r.pos = 1;
+        r.reserve = 10;
+        r.repairsPaid = 0;
+        r.sixesInRow = 0;
+        r.userBet = 0;
+      });
+      state.currentRiderIdx = 0;
+      state.isRolling = false;
+      state.isGameOver = false;
+      state.bettingLocked = false;
+      state.spectatorWallet = 100;
+      state.totalRepairsCount = 0;
+
+      document.getElementById('victoryModal').classList.add('hidden');
+      document.getElementById('potholeModal').classList.add('hidden');
+      document.getElementById('landingModal').classList.remove('hidden');
+      syncRpmReadouts('---');
+
+      ['bettingLockIndicator', 'desktopBettingLockIndicator'].forEach(id => {
+        const indicator = document.getElementById(id);
+        if (indicator) {
+          indicator.innerHTML = `<span>🔒</span><span>STAGING</span>`;
+          indicator.classList.remove('border-red-500/40', 'bg-red-950/40');
+        }
+      });
+
+      renderPreRaceModal();
+      state.riders.forEach(r => updateBikePosition(r));
+      renderRacersAndBackers();
+      document.getElementById('spectatorWalletDisplay').innerText = '100';
+      showTrackBanner('🏁 Enter driver names and start race!');
+    }
+
+    function toggleAutoAI() {
+      state.autoAI = !state.autoAI;
+      const aiBtn = document.getElementById('btnAutoAIToggle');
+      const deskAiBtn = document.getElementById('btnDesktopAutoAIToggle');
+
+      if (aiBtn) {
+        aiBtn.innerText = state.autoAI ? 'AI' : 'OFF';
+        aiBtn.className = state.autoAI 
+          ? 'px-2 py-1.5 rounded-lg font-bold font-mono text-[10px] bg-orange-500/20 text-orange-400 border border-orange-500/30 touch-manipulation'
+          : 'px-2 py-1.5 rounded-lg font-bold font-mono text-[10px] bg-neutral-800 text-neutral-400 touch-manipulation';
+      }
+
+      if (deskAiBtn) {
+        deskAiBtn.innerText = state.autoAI ? 'AI: ON' : 'AI: OFF';
+        deskAiBtn.className = state.autoAI
+          ? 'px-3 py-3 rounded-2xl font-bold font-mono text-xs bg-orange-500/20 text-orange-400 border border-orange-500/40 hover:bg-orange-500/30 transition cursor-pointer'
+          : 'px-3 py-3 rounded-2xl font-bold font-mono text-xs bg-neutral-900 text-neutral-400 border border-neutral-700 hover:bg-neutral-800 transition cursor-pointer';
+      }
+
+      if (state.autoAI && state.bettingLocked && !state.isRolling && !state.isGameOver && state.riders[state.currentRiderIdx].isAI) {
+        executeThrottleRoll();
+      }
+    }
+
+    function initGame() {
+      computeSectorCoords();
+      buildCircuitPaths();
+      renderPreRaceModal();
+      renderRacersAndBackers();
+
+      document.getElementById('btnTwistThrottle').addEventListener('click', executeThrottleRoll);
+      const deskThrottleBtn = document.getElementById('btnDesktopTwistThrottle');
+      if (deskThrottleBtn) {
+        deskThrottleBtn.addEventListener('click', executeThrottleRoll);
+      }
+
+      window.addEventListener('keydown', (e) => {
+        if (e.code === 'Space' && !state.isRolling && !state.isGameOver && state.bettingLocked) {
+          const active = state.riders[state.currentRiderIdx];
+          if (!active.isAI) {
+            e.preventDefault();
+            executeThrottleRoll();
+          }
+        }
+      });
+
+      document.getElementById('btnResetGame').addEventListener('click', resetRace);
+      document.getElementById('btnNewRace').addEventListener('click', resetRace);
+
+      document.getElementById('btnSoundToggle').addEventListener('click', () => {
+        sfx.enabled = !sfx.enabled;
+        document.getElementById('soundIconOn').classList.toggle('hidden', !sfx.enabled);
+        document.getElementById('soundIconOff').classList.toggle('hidden', sfx.enabled);
+      });
+
+      document.getElementById('btnAutoAIToggle').addEventListener('click', toggleAutoAI);
+      const deskAiBtn = document.getElementById('btnDesktopAutoAIToggle');
+      if (deskAiBtn) {
+        deskAiBtn.addEventListener('click', toggleAutoAI);
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      window.addEventListener('DOMContentLoaded', initGame);
+    } else {
+      initGame();
+    }
+  </script>
+</body>
+</html>
